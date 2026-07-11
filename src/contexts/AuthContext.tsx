@@ -64,8 +64,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleSignUp = async (params: SignUpParams) => {
     if (!supabase) throw new Error('Supabase not configured')
-    await signUp(params)
+    
+    console.log('🚀 Starting signup flow...')
+    
+    const signUpResult = await signUp(params)
+    console.log('📝 Signup result:', signUpResult)
+    
+    // Esperar un momento para que el trigger cree el business y profile
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    console.log('🔑 Attempting auto-signin...')
     await signIn({ email: params.email, password: params.password })
+    console.log('✅ Signup flow completed')
   }
 
   const handleSignIn = async (params: SignInParams) => {
