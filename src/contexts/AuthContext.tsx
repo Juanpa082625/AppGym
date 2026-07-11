@@ -65,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleSignUp = async (params: SignUpParams) => {
     if (!supabase) throw new Error('Supabase not configured')
     await signUp(params)
+    await signIn({ email: params.email, password: params.password })
   }
 
   const handleSignIn = async (params: SignInParams) => {

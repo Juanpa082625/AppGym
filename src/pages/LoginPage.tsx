@@ -1,22 +1,33 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 export function LoginPage() {
   const [view, setView] = useState<'login' | 'register'>('login')
   const { signIn, signUp } = useAuth()
+  const navigate = useNavigate()
+
+  const handleSignIn = async (params: { email: string; password: string }) => {
+    await signIn(params)
+    navigate('/dashboard')
+  }
+
+  const handleSignUp = async (params: { email: string; password: string; fullName: string; businessName: string }) => {
+    await signUp(params)
+    navigate('/dashboard')
+  }
 
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md text-center">
         {view === 'login' ? (
           <LoginForm
-            onSignIn={signIn}
+            onSignIn={handleSignIn}
             onSwitchToRegister={() => setView('register')}
           />
         ) : (
           <RegisterForm
-            onSignUp={signUp}
+            onSignUp={handleSignUp}
             onSwitchToLogin={() => setView('login')}
           />
         )}
