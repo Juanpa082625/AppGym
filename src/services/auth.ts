@@ -14,6 +14,7 @@ export interface SignInParams {
 }
 
 export async function signUp({ email, password, fullName, businessName }: SignUpParams) {
+  if (!supabase) throw new Error('Supabase not configured')
   const slug = businessName
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -36,6 +37,7 @@ export async function signUp({ email, password, fullName, businessName }: SignUp
 }
 
 export async function signIn({ email, password }: SignInParams) {
+  if (!supabase) throw new Error('Supabase not configured')
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -46,22 +48,26 @@ export async function signIn({ email, password }: SignInParams) {
 }
 
 export async function signOut() {
+  if (!supabase) throw new Error('Supabase not configured')
   const { error } = await supabase.auth.signOut()
   if (error) throw error
 }
 
 export async function resetPassword(email: string) {
+  if (!supabase) throw new Error('Supabase not configured')
   const { error } = await supabase.auth.resetPasswordForEmail(email)
   if (error) throw error
 }
 
 export async function getCurrentSession() {
+  if (!supabase) throw new Error('Supabase not configured')
   const { data: { session }, error } = await supabase.auth.getSession()
   if (error) throw error
   return session
 }
 
 export async function fetchProfile(userId: string): Promise<Profile> {
+  if (!supabase) throw new Error('Supabase not configured')
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
@@ -73,6 +79,7 @@ export async function fetchProfile(userId: string): Promise<Profile> {
 }
 
 export async function fetchBusiness(businessId: string): Promise<Business> {
+  if (!supabase) throw new Error('Supabase not configured')
   const { data, error } = await supabase
     .from('businesses')
     .select('*')

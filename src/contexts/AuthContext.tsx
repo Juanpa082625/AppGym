@@ -21,9 +21,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   })
 
   useEffect(() => {
+    if (!supabase) {
+      setState({ user: null, profile: null, business: null, loading: false })
+      return
+    }
+
+    const supabaseClient = supabase
+
     const initSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        const { data: { session } } = await supabaseClient.auth.getSession()
         if (session?.user) {
           const profile = await fetchProfile(session.user.id)
           const business = await fetchBusiness(profile.business_id)
@@ -38,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     initSession()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         try {
           const profile = await fetchProfile(session.user.id)
@@ -56,14 +63,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const handleSignUp = async (params: SignUpParams) => {
+    if (!supabase) throw new Error('Supabase not configured')
     await signUp(params)
   }
 
   const handleSignIn = async (params: SignInParams) => {
+    if (!supabase) throw new Error('Supabase not configured')
     await signIn(params)
   }
 
   const handleSignOut = async () => {
+    if (!supabase) throw new Error('Supabase not configured')
     await authSignOut()
     setState({ user: null, profile: null, business: null, loading: false })
   }

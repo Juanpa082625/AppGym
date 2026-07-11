@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase'
 import type { Member } from '../types'
 
 export async function fetchMembers(businessId: string): Promise<Member[]> {
+  if (!supabase) throw new Error('Supabase not configured')
   const { data, error } = await supabase
     .from('members')
     .select('*')
@@ -13,6 +14,7 @@ export async function fetchMembers(businessId: string): Promise<Member[]> {
 }
 
 export async function fetchHighRiskMembers(businessId: string): Promise<Member[]> {
+  if (!supabase) throw new Error('Supabase not configured')
   const { data, error } = await supabase
     .from('members')
     .select('*')
@@ -29,6 +31,7 @@ export async function createMember(
   businessId: string,
   member: Omit<Member, 'id' | 'business_id' | 'created_at' | 'updated_at' | 'risk_score' | 'risk_reasons' | 'status'>
 ): Promise<Member> {
+  if (!supabase) throw new Error('Supabase not configured')
   const { data, error } = await supabase
     .from('members')
     .insert({
@@ -55,6 +58,7 @@ export async function updateMember(
   memberId: string,
   updates: Partial<Pick<Member, 'full_name' | 'email' | 'phone' | 'status' | 'last_visit' | 'monthly_fee' | 'notes'>>
 ): Promise<Member> {
+  if (!supabase) throw new Error('Supabase not configured')
   const { data, error } = await supabase
     .from('members')
     .update(updates)
@@ -67,6 +71,7 @@ export async function updateMember(
 }
 
 export async function deleteMember(memberId: string): Promise<void> {
+  if (!supabase) throw new Error('Supabase not configured')
   const { error } = await supabase
     .from('members')
     .delete()

@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase'
 import type { DashboardStats } from '../types'
 
 export async function fetchDashboardStats(businessId: string): Promise<DashboardStats | null> {
+  if (!supabase) throw new Error('Supabase not configured')
   const { data, error } = await supabase
     .from('dashboard_stats')
     .select('*')
@@ -15,6 +16,7 @@ export async function fetchDashboardStats(businessId: string): Promise<Dashboard
 }
 
 export async function calculateAndSaveStats(businessId: string): Promise<DashboardStats> {
+  if (!supabase) throw new Error('Supabase not configured')
   const { data: members, error: membersError } = await supabase
     .from('members')
     .select('risk_score, status')
