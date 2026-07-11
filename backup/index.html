@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GetGym — Tu co-piloto operativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#fdf6e9;color:#1a1a1a;line-height:1.6}
+a{text-decoration:none;color:inherit}
+ul{list-style:none}
+img{max-width:100%}
+
+.container{max-width:1100px;margin:0 auto;padding:0 20px}
+
+/* NAVBAR */
+.navbar{position:sticky;top:0;z-index:100;background:#fdf6e9;border-bottom:1px solid #e5e7eb;padding:16px 0}
+.navbar .container{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.navbar-logo{font-size:20px;font-weight:700;color:#1a1a1a}
+.navbar-logo span{color:#d97706}
+.navbar-links{display:flex;align-items:center;gap:24px}
+.navbar-links a{font-size:14px;color:#6b7280;font-weight:500;transition:color .2s}
+.navbar-links a:hover{color:#1a1a1a}
+.navbar-actions{display:flex;align-items:center;gap:12px}
+.btn-ghost{padding:8px 16px;font-size:14px;font-weight:500;color:#1a1a1a;background:transparent;border:1px solid #d1d5db;border-radius:8px;cursor:pointer;transition:all .2s}
+.btn-ghost:hover{border-color:#1a1a1a}
+.btn-primary{padding:8px 16px;font-size:14px;font-weight:500;color:#fff;background:#111;border:none;border-radius:8px;cursor:pointer;transition:all .2s}
+.btn-primary:hover{background:#333}
+
+/* HERO */
+.hero{padding:80px 0 60px;text-align:center}
+.hero-badge{display:inline-block;background:#fef3c7;color:#92400e;font-size:13px;font-weight:500;padding:6px 14px;border-radius:20px;margin-bottom:24px}
+.hero h1{font-size:52px;font-weight:600;letter-spacing:-1px;line-height:1.1;margin-bottom:20px;max-width:700px;margin-left:auto;margin-right:auto}
+.hero h1 span{color:#d97706}
+.hero-sub{font-size:18px;color:#6b7280;line-height:1.7;max-width:560px;margin:0 auto 32px}
+.hero-buttons{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.btn-primary-lg{padding:14px 28px;font-size:16px;font-weight:500;color:#fff;background:#111;border:none;border-radius:10px;cursor:pointer}
+.btn-primary-lg:hover{background:#333}
+.btn-ghost-lg{padding:14px 28px;font-size:16px;font-weight:500;color:#1a1a1a;background:transparent;border:1px solid #d1d5db;border-radius:10px;cursor:pointer}
+.btn-ghost-lg:hover{border-color:#1a1a1a}
+.hero-note{font-size:13px;color:#6b7280;margin-bottom:16px}
+.hero-flags{font-size:14px;color:#6b7280;margin-bottom:40px}
+
+/* DASHBOARD WIDGET */
+.dashboard{max-width:480px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.08);padding:24px;text-align:left}
+.dashboard-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.dashboard-header span{font-size:12px;color:#6b7280}
+.dashboard-header strong{font-size:14px}
+.dashboard-greeting{font-size:16px;font-weight:600;margin-bottom:16px}
+.dashboard-greeting span{color:#d97706}
+.dashboard-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+.stat-box{text-align:center;padding:12px;background:#fdf6e9;border-radius:10px}
+.stat-box .num{font-size:22px;font-weight:700;color:#1a1a1a}
+.stat-box .label{font-size:11px;color:#6b7280;margin-top:2px}
+.dashboard-risk h4{font-size:13px;font-weight:600;margin-bottom:10px;color:#1a1a1a}
+.risk-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e5e7eb}
+.risk-item:last-child{border:none}
+.risk-item .name{font-size:13px;font-weight:500}
+.risk-item .reason{font-size:11px;color:#6b7280}
+.risk-item .call{font-size:11px;color:#d97706;font-weight:600;cursor:pointer}
+
+/* SECTION COMMON */
+.section{padding:80px 0}
+.section-eyebrow{font-size:13px;font-weight:600;color:#d97706;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;text-align:center}
+.section-title{font-size:36px;font-weight:600;letter-spacing:-.5px;text-align:center;margin-bottom:16px;max-width:600px;margin-left:auto;margin-right:auto}
+.section-sub{font-size:16px;color:#6b7280;text-align:center;max-width:520px;margin:0 auto 48px;line-height:1.7}
+
+/* PROBLEMS */
+.problems-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.problem-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:28px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.problem-card h3{font-size:18px;font-weight:600;margin-bottom:10px}
+.problem-card p{font-size:14px;color:#6b7280;line-height:1.7}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+.feature-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:28px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.feature-card .icon{width:40px;height:40px;background:#fef3c7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:16px}
+.feature-card h3{font-size:16px;font-weight:600;margin-bottom:8px}
+.feature-card p{font-size:14px;color:#6b7280;line-height:1.6}
+
+/* STEPS */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px}
+.step{text-align:center}
+.step-num{font-size:48px;font-weight:700;color:#d97706;margin-bottom:12px}
+.step h3{font-size:18px;font-weight:600;margin-bottom:8px}
+.step p{font-size:14px;color:#6b7280;line-height:1.7;max-width:300px;margin:0 auto}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;text-align:center}
+.metric .num{font-size:48px;font-weight:700;color:#d97706}
+.metric .label{font-size:14px;color:#6b7280;margin-top:8px;line-height:1.6}
+
+/* TESTIMONIALS */
+.testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+.testimonial-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:28px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.testimonial-card blockquote{font-size:14px;color:#1a1a1a;line-height:1.7;margin-bottom:20px;font-style:italic}
+.testimonial-author{display:flex;align-items:center;gap:12px}
+.testimonial-avatar{width:40px;height:40px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#92400e}
+.testimonial-info .t-name{font-size:14px;font-weight:600}
+.testimonial-info .t-role{font-size:12px;color:#6b7280}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+.pricing-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:28px;box-shadow:0 1px 3px rgba(0,0,0,.08);position:relative}
+.pricing-card.featured{border-color:#d97706;border-width:2px}
+.pricing-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#d97706;color:#fff;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px}
+.pricing-card h3{font-size:18px;font-weight:600;margin-bottom:4px}
+.pricing-card .desc{font-size:13px;color:#6b7280;margin-bottom:16px}
+.pricing-card .price{font-size:36px;font-weight:700;margin-bottom:4px}
+.pricing-card .price span{font-size:14px;font-weight:400;color:#6b7280}
+.pricing-card .price-note{font-size:12px;color:#6b7280;margin-bottom:20px}
+.pricing-card ul{margin-bottom:24px}
+.pricing-card ul li{font-size:13px;color:#6b7280;padding:6px 0;padding-left:20px;position:relative}
+.pricing-card ul li::before{content:"✓";position:absolute;left:0;color:#d97706;font-weight:700}
+.pricing-card .btn-full{width:100%;padding:12px;font-size:14px;font-weight:500;border-radius:8px;cursor:pointer;text-align:center;display:block}
+
+/* FAQ */
+.faq-list{max-width:700px;margin:0 auto}
+.faq-item{border-bottom:1px solid #e5e7eb;padding:20px 0;cursor:pointer}
+.faq-question{display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:500}
+.faq-question::after{content:"+";font-size:20px;color:#6b7280;transition:transform .2s}
+.faq-item.open .faq-question::after{content:"−"}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height .3s ease;font-size:14px;color:#6b7280;line-height:1.7}
+.faq-item.open .faq-answer{max-height:200px;padding-top:12px}
+
+/* CTA */
+.cta{text-align:center;padding:80px 0}
+.cta h2{font-size:36px;font-weight:600;letter-spacing:-.5px;margin-bottom:12px}
+.cta p{font-size:16px;color:#6b7280;max-width:500px;margin:0 auto 32px;line-height:1.7}
+.cta-note{font-size:13px;color:#6b7280;margin-top:16px}
+
+/* FOOTER */
+.footer{border-top:1px solid #e5e7eb;padding:48px 0 32px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:32px}
+.footer-brand p{font-size:13px;color:#6b7280;line-height:1.7;margin-top:8px;max-width:280px}
+.footer-col h4{font-size:13px;font-weight:600;margin-bottom:12px}
+.footer-col a{display:block;font-size:13px;color:#6b7280;padding:4px 0}
+.footer-col a:hover{color:#1a1a1a}
+.footer-bottom{font-size:12px;color:#6b7280;text-align:center;padding-top:24px;border-top:1px solid #e5e7eb}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .navbar-links{display:none}
+  .hero h1{font-size:34px}
+  .hero-sub{font-size:16px}
+  .section-title{font-size:28px}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .dashboard-stats{grid-template-columns:1fr}
+  .pricing-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .hero h1{font-size:28px}
+  .footer-grid{grid-template-columns:1fr}
+  .metrics{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="navbar-logo">Get<span>Gym</span></a>
+    <div class="navbar-links">
+      <a href="#beneficios">Beneficios</a>
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#precios">Precios</a>
+      <a href="#preguntas">Preguntas</a>
+    </div>
+    <div class="navbar-actions">
+      <a href="login.html" class="btn-ghost">Iniciar sesión</a>
+      <a href="login.html" class="btn-primary">Probar gratis →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">Hecho en LATAM para dueños de gym</div>
+    <h1>Sabé quién está por dejar tu gym <span>antes que se vaya.</span></h1>
+    <p class="hero-sub">GetGym calcula el riesgo de cada miembro, automatiza tus reportes y te da el plan de acción cada mañana. Sin Excel. Sin perseguir morosos a mano.</p>
+    <div class="hero-buttons">
+      <a href="login.html" class="btn-primary-lg">Probar gratis 14 días</a>
+      <a href="#como-funciona" class="btn-ghost-lg">Cómo funciona</a>
+    </div>
+    <p class="hero-note">Sin tarjeta · Setup en 5 min · En español</p>
+    <p class="hero-flags">En uso en 🇨🇴 Colombia · 🇲🇽 México · 🇦🇷 Argentina · 🇨🇱 Chile · 🇵🇪 Perú · 🇪🇨 Ecuador</p>
+
+    <!-- Dashboard Widget -->
+    <div class="dashboard">
+      <div class="dashboard-header">
+        <strong>Resumen operativo · Iron Strength</strong>
+        <span>En vivo · hoy 09:14</span>
+      </div>
+      <p class="dashboard-greeting">Buen día, Roberto. Hay <span>3 miembros en riesgo alto</span> que necesitan tu atención esta semana.</p>
+      <div class="dashboard-stats">
+        <div class="stat-box"><div class="num">62</div><div class="label">Score promedio<br>-8 vs semana pasada</div></div>
+        <div class="stat-box"><div class="num">88%</div><div class="label">Retención mensual<br>+11 puntos</div></div>
+        <div class="stat-box"><div class="num">3</div><div class="label">Riesgo alto</div></div>
+      </div>
+      <div class="dashboard-risk">
+        <h4>Miembros en riesgo</h4>
+        <div class="risk-item"><div><div class="name">Daniela Castro</div><div class="reason">Sin asistir hace 9 días</div></div><span class="call">Llamar</span></div>
+        <div class="risk-item"><div><div class="name">Mariana Soto</div><div class="reason">Frecuencia bajó 60%</div></div><span class="call">Llamar</span></div>
+        <div class="risk-item"><div><div class="name">Pedro González</div><div class="reason">Pago atrasado 12 días</div></div><span class="call">Llamar</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMS -->
+<section class="section" id="beneficios">
+  <div class="container">
+    <p class="section-eyebrow">¿Te suena familiar?</p>
+    <h2 class="section-title">Estos 3 problemas le pasan a todo dueño de gym en LATAM.</h2>
+    <div class="section-sub"></div>
+    <div class="problems-grid">
+      <div class="problem-card">
+        <h3>Vivís dentro de planillas Excel</h3>
+        <p>Cargás asistencias, pagos y datos en mil archivos sueltos. Cuando querés un reporte, te lleva medio día armarlo a mano.</p>
+      </div>
+      <div class="problem-card">
+        <h3>Te enterás del churn cuando ya se fueron</h3>
+        <p>Un miembro dejó de venir hace 3 semanas y nadie lo notó. Cuando lo llamás, ya está en el gym de la otra cuadra.</p>
+      </div>
+      <div class="problem-card">
+        <h3>Perdés horas persiguiendo morosos</h3>
+        <p>Llamadas, mensajes, anotaciones en papel. Sin sistema, los pagos atrasados se acumulan y la caja se desordena.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="container">
+    <p class="section-eyebrow">Todo lo que necesitás, en un solo lugar</p>
+    <h2 class="section-title">Una plataforma diseñada para que retengas, no para que cargues datos.</h2>
+    <p class="section-sub">Cada feature pensada para resolver un problema concreto del día a día de un gimnasio LATAM.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="icon">📊</div>
+        <h3>Score de riesgo automático</h3>
+        <p>Cada miembro tiene un score 0–100 que se recalcula con su asistencia, frecuencia, pagos y contacto del coach. Sabés a quién llamar primero.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📈</div>
+        <h3>Reportes mensuales sin tocar Excel</h3>
+        <p>El primero de cada mes recibís un reporte web con retención, altas, bajas, ingresos y top miembros. Cero trabajo manual.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">👥</div>
+        <h3>Miembros, pagos y rutinas en un solo lugar</h3>
+        <p>Editor de rutinas, biblioteca de ejercicios, asignación a miembros y registro de pagos manuales con filtros avanzados.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🎯</div>
+        <h3>Ofertas configurables para retener</h3>
+        <p>Publicás una oferta y aparece en el dashboard de cada miembro. Comunidad interna con feed, logros automáticos y encuestas post-entreno.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔔</div>
+        <h3>Alertas in-app y notificaciones</h3>
+        <p>Cuando un miembro pasa a riesgo alto, te llega una notificación. Cuando se desbloquea un logro, el miembro recibe la suya.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📱</div>
+        <h3>Tu gym desde el celular</h3>
+        <p>App responsive con menú estilo nativo. Tus miembros reservan clases, ven su rutina, registran progreso y ven sus pagos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="como-funciona">
+  <div class="container">
+    <p class="section-eyebrow">Cómo funciona</p>
+    <h2 class="section-title">Estás operando con datos reales en menos de 10 minutos.</h2>
+    <div class="section-sub"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Creá tu cuenta</h3>
+        <p>Te registrás con email y nombre del gimnasio. En 2 minutos ya estás dentro del panel. Sin tarjeta de crédito.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Cargás tus miembros</h3>
+        <p>Invitás a tu equipo de entrenadores y agregás miembros uno por uno o pegando un CSV. Cada miembro recibe su acceso.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Empezás a recibir alertas</h3>
+        <p>A medida que entran asistencias y pagos, el score se calcula solo. La primer alerta de riesgo te llega en la primera semana.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section class="section">
+  <div class="container">
+    <p class="section-eyebrow">Resultados reales</p>
+    <h2 class="section-title">Gimnasios que ya usan GetGym lo notan en el primer mes.</h2>
+    <div class="section-sub"></div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="num">+22%</div>
+        <div class="label">Retención mensual promedio en gyms que usan score de riesgo</div>
+      </div>
+      <div class="metric">
+        <div class="num">3.2 h</div>
+        <div class="label">Tiempo ahorrado por semana al automatizar reportes y alertas</div>
+      </div>
+      <div class="metric">
+        <div class="num">$1.140</div>
+        <div class="label">Ingreso recuperado promedio por mes por gym (recuperos)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section">
+  <div class="container">
+    <p class="section-eyebrow">Lo que dicen los dueños</p>
+    <h2 class="section-title">Hecho con dueños de gym, no con consultores.</h2>
+    <div class="section-sub"></div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <blockquote>"En 6 semanas pasamos de 71% a 88% de retención. Lo más útil es que cada mañana sé exactamente a quién llamar. Antes era a ciegas."</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">RM</div>
+          <div class="testimonial-info"><div class="t-name">Roberto Martínez</div><div class="t-role">Dueño · Iron Strength · Medellín</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <blockquote>"Dejé de cargar planillas. Mis tres coaches usan la app desde el celular para registrar asistencias y rutinas. Los reportes mensuales son automáticos."</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">LG</div>
+          <div class="testimonial-info"><div class="t-name">Laura Giménez</div><div class="t-role">Dueña · Power Hub · Buenos Aires</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <blockquote>"Pasamos a Plan Enterprise. La data nos sirvió para abrir una segunda sede sin perder calidad. Saber el churn proyectado cambia la planificación."</blockquote>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">AR</div>
+          <div class="testimonial-info"><div class="t-name">Andrés Rodríguez</div><div class="t-role">Dueño · Wellness Bogotá</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="precios">
+  <div class="container">
+    <p class="section-eyebrow">Precios simples</p>
+    <h2 class="section-title">Un plan para cada momento. Sin contratos.</h2>
+    <p class="section-sub">Pasás de plan cuando crece tu gym. Cancelás cuando quieras.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <h3>Free</h3>
+        <p class="desc">Para gimnasios chicos que recién arrancan o quieren probar.</p>
+        <div class="price">$0</div>
+        <p class="price-note">para siempre</p>
+        <ul>
+          <li>Hasta 30 miembros activos</li>
+          <li>Dashboard básico + score de riesgo</li>
+          <li>1 administrador</li>
+          <li>Soporte por email</li>
+        </ul>
+        <a href="login.html" class="btn-ghost btn-full">Empezar gratis</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Más elegido</div>
+        <h3>Starter</h3>
+        <p class="desc">Gimnasio independiente con foco en retención.</p>
+        <div class="price">$17 <span>USD / mes</span></div>
+        <p class="price-note">&nbsp;</p>
+        <ul>
+          <li>Hasta 150 miembros activos</li>
+          <li>Reportes mensuales automáticos</li>
+          <li>Hasta 3 entrenadores</li>
+          <li>Comunidad y logros</li>
+        </ul>
+        <a href="login.html" class="btn-primary btn-full">Probar 14 días gratis</a>
+      </div>
+      <div class="pricing-card">
+        <h3>Pro</h3>
+        <p class="desc">Gimnasio establecido que quiere maximizar retención.</p>
+        <div class="price">$48 <span>USD / mes</span></div>
+        <p class="price-note">&nbsp;</p>
+        <ul>
+          <li>Hasta 500 miembros activos</li>
+          <li>Cohortes y reportes avanzados</li>
+          <li>Integraciones (Mercado Pago próximamente)</li>
+          <li>Hasta 10 entrenadores</li>
+          <li>Soporte prioritario</li>
+        </ul>
+        <a href="login.html" class="btn-primary btn-full">Probar 14 días gratis</a>
+      </div>
+      <div class="pricing-card">
+        <h3>Enterprise</h3>
+        <p class="desc">Cadenas y gimnasios con múltiples sedes.</p>
+        <div class="price">$120 <span>USD / mes</span></div>
+        <p class="price-note">&nbsp;</p>
+        <ul>
+          <li>Miembros ilimitados</li>
+          <li>Multi-sede</li>
+          <li>API y webhooks</li>
+          <li>Onboarding dedicado</li>
+          <li>Coach asignado de éxito</li>
+        </ul>
+        <a href="login.html" class="btn-ghost btn-full">Hablemos</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="preguntas">
+  <div class="container">
+    <p class="section-eyebrow">Preguntas frecuentes</p>
+    <h2 class="section-title">Lo que más nos preguntan los dueños.</h2>
+    <div class="section-sub"></div>
+    <div class="faq-list">
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-question">¿Cuánto cuesta empezar?</div>
+        <div class="faq-answer">Tenés un plan Free para siempre con hasta 30 miembros activos. Si ya tenés más, los planes pagos arrancan en $17 USD/mes y los probás 14 días gratis sin tarjeta de crédito.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-question">¿Está en español y pensado para LATAM?</div>
+        <div class="faq-answer">100%. La interfaz, los reportes, las notificaciones y la documentación están en español rioplatense / latam neutro. Los precios se muestran en USD pero podés cobrar en cualquier moneda local.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-question">¿Cómo se calcula el score de riesgo?</div>
+        <div class="faq-answer">Combinamos 4 señales: días sin venir al gym, caída de frecuencia comparando últimos 30 vs 30 anteriores, pagos atrasados y falta de contacto del coach. El score va de 0 a 100 y se recalcula automáticamente.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-question">¿Mis miembros tienen su propia app?</div>
+        <div class="faq-answer">Sí. Cada miembro tiene su login con dashboard personal, rutina asignada, reserva de clases, registro de progreso, fotos comparativas, logros y encuestas post-entreno. Se ve perfecto desde el celular.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-question">¿Puedo importar mi base de miembros actual?</div>
+        <div class="faq-answer">Sí, importás desde CSV o cargás manualmente. El onboarding lleva 5–10 minutos. Si tenés más de 200 miembros te ayudamos sin costo en una sesión de 30 min.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-question">¿Cómo cobro las cuotas?</div>
+        <div class="faq-answer">Por ahora registrás los pagos manualmente desde el panel (rapidísimo). Mercado Pago se integra para cobros automáticos en LATAM próximamente.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-question">¿Hay contrato o permanencia?</div>
+        <div class="faq-answer">No. Mes a mes. Cancelás cuando quieras desde tu configuración y conservás el acceso hasta el final del período pagado.</div>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:32px;font-size:14px;color:#6b7280">¿Otra pregunta? <a href="mailto:soporte@getgym.app" style="color:#d97706;font-weight:500">soporte@getgym.app</a></p>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="container">
+    <p class="section-eyebrow">Empezá hoy</p>
+    <h2>Tu próximo miembro perdido es una asistencia de menos.</h2>
+    <p>Empezá gratis hoy, configurá tu gym en menos de 10 minutos y empezá a recibir alertas de riesgo esta semana.</p>
+    <div class="hero-buttons">
+      <a href="login.html" class="btn-primary-lg">Crear cuenta gratis</a>
+      <a href="login.html" class="btn-ghost-lg">Ya tengo cuenta · Ingresar</a>
+    </div>
+    <p class="cta-note">Sin tarjeta de crédito · Cancelás cuando quieras · Soporte en español</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="navbar-logo">Get<span>Gym</span></div>
+        <p>Plataforma de retención hecha en LATAM para dueños de gym. Reducí el churn sin pasar tu día en Excel.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Producto</h4>
+        <a href="#beneficios">Beneficios</a>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#precios">Precios</a>
+        <a href="#preguntas">FAQ</a>
+      </div>
+      <div class="footer-col">
+        <h4>Empezar</h4>
+        <a href="login.html">Crear cuenta</a>
+        <a href="login.html">Iniciar sesión</a>
+        <a href="mailto:soporte@getgym.app">Soporte</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legales</h4>
+        <a href="#">Términos y condiciones</a>
+        <a href="#">Política de privacidad</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 GetGym SAS. Hecho en LATAM. v1.0</div>
+  </div>
+</footer>
+
+</body>
+</html>
