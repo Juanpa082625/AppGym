@@ -8,15 +8,18 @@ import {
   MessageSquare, 
   Phone,
   ChevronRight,
-  ArrowUpRight,
   ShieldCheck,
-  Percent
+  Users,
+  DollarSign,
+  UserPlus
 } from 'lucide-react';
 import { GymSettings, Member } from '../types';
+import { DashboardStats } from '../services/statistics';
 
 interface DashboardProps {
   gymSettings: GymSettings;
   members: Member[];
+  stats: DashboardStats;
   setActiveTab: (tab: string) => void;
   setMemberFilter: (filter: string) => void;
   onGenerateReport: () => void;
@@ -24,7 +27,8 @@ interface DashboardProps {
 
 export default function Dashboard({ 
   gymSettings, 
-  members, 
+  members,
+  stats,
   setActiveTab, 
   setMemberFilter,
   onGenerateReport 
@@ -41,11 +45,20 @@ export default function Dashboard({
     }, 1200);
   };
 
-  // Find members at risk (Juan Pablo, Daniela, Mariana)
+  // Find members at risk
   const highRiskMembers = members
     .filter(m => m.risk === 'ALTO' || m.risk === 'MEDIO')
     .sort((a, b) => b.riskScore - a.riskScore)
     .slice(0, 3);
+
+  // Calculate risk distribution percentages
+  const totalRiskMembers = stats.highRiskMembers + stats.mediumRiskMembers + stats.lowRiskMembers;
+  const highRiskPercentage = totalRiskMembers > 0 ? Math.round((stats.highRiskMembers / totalRiskMembers) * 100) : 0;
+  const mediumRiskPercentage = totalRiskMembers > 0 ? Math.round((stats.mediumRiskMembers / totalRiskMembers) * 100) : 0;
+  const lowRiskPercentage = totalRiskMembers > 0 ? Math.round((stats.lowRiskMembers / totalRiskMembers) * 100) : 0;
+
+  // Check if dashboard is empty
+  const isEmpty = stats.totalMembers === 0;
 
   return (
     <div className="flex flex-col gap-8">
@@ -56,10 +69,14 @@ export default function Dashboard({
             RESUMEN OPERATIVO · HOY
           </span>
           <h1 className="text-3xl font-extrabold text-gray-900 mt-2 tracking-tight">
-            Buen día, Roberto.
+            Buen día.
           </h1>
           <p className="text-gray-500 text-sm mt-2 max-w-2xl leading-relaxed">
-            Hay <strong className="text-gray-900 font-semibold">3 miembros</strong> en riesgo medio o alto en {gymSettings.name} que necesitan atención (1 críticos).
+            {isEmpty ? (
+              <>Comienza agregando miembros a {gymSettings.name} para ver estadísticas y alertas de riesgo.</>
+            ) : (
+              <>Hay <strong className="text-gray-900 font-semibold">{stats.highRiskMembers + stats.mediumRiskMembers} miembros</strong> en riesgo medio o alto en {gymSettings.name} que necesitan atención ({stats.highRiskMembers} críticos).</>
+            )}
           </p>
           <div className="flex flex-wrap gap-3 mt-5">
             <button
@@ -67,14 +84,16 @@ export default function Dashboard({
                 setMemberFilter("En riesgo");
                 setActiveTab("miembros");
               }}
-              className="flex items-center gap-2 bg-[#1E1E1E] hover:bg-gray-800 text-white text-xs font-bold px-4 py-2.5 rounded-2xl transition-all cursor-pointer shadow-sm"
+              disabled={isEmpty}
+              className="flex items-center gap-2 bg-[#1E1E1E] hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-xs font-bold px-4 py-2.5 rounded-2xl transition-all cursor-pointer shadow-sm"
             >
               <AlertTriangle className="w-4 h-4 text-orange-400" />
               <span>Ver miembros en riesgo</span>
             </button>
             <button
               onClick={onGenerateReport}
-              className="flex items-center gap-2 bg-white border border-[#EFE9E4] hover:bg-[#FAF7F2] text-[#1E1E1E] text-xs font-bold px-4 py-2.5 rounded-2xl transition-all cursor-pointer shadow-sm"
+              disabled={isEmpty}
+              className="flex items-center gap-2 bg-white border border-[#EFE9E4] hover:bg-[#FAF7F2] disabled:opacity-50 disabled:cursor-not-allowed text-[#1E1E1E] text-xs font-bold px-4 py-2.5 rounded-2xl transition-all cursor-pointer shadow-sm"
             >
               <FileText className="w-4 h-4 text-gray-400" />
               <span>Generar reporte mensual</span>
@@ -86,23 +105,23 @@ export default function Dashboard({
         <div className="flex gap-4 flex-shrink-0">
           <div className="bg-[#FAF7F2] border border-[#EFE9E4] rounded-2xl p-5 w-[160px] relative overflow-hidden">
             <div className="w-8 h-8 rounded-full bg-[#F3ECE5] text-amber-700 flex items-center justify-center mb-3">
-              <Sparkles className="w-4.5 h-4.5" />
+              <Users className="w-4 h-4" />
             </div>
             <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">
               MIEMBROS ACTIVOS
             </span>
-            <div className="text-2xl font-extrabold text-gray-900 mt-1">9</div>
-            <span className="text-[10px] text-gray-500 mt-0.5 block">hoy en el gym</span>
+            <div className="text-2xl font-extrabold text-gray-900 mt-1">{stats.activeMembers}</div>
+            <span className="text-[10px] text-gray-500 mt-0.5 block">de {stats.totalMembers} totales</span>
           </div>
 
           <div className="bg-[#FAF7F2] border border-[#EFE9E4] rounded-2xl p-5 w-[160px] relative overflow-hidden">
             <div className="w-8 h-8 rounded-full bg-[#EBF5EE] text-emerald-700 flex items-center justify-center mb-3">
-              <TrendingUp className="w-4.5 h-4.5" />
+              <UserPlus className="w-4 h-4" />
             </div>
             <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">
               ALTAS DEL MES
             </span>
-            <div className="text-2xl font-extrabold text-gray-900 mt-1">+3</div>
+            <div className="text-2xl font-extrabold text-gray-900 mt-1">+{stats.newMembersThisMonth}</div>
             <span className="text-[10px] text-gray-500 mt-0.5 block">miembros nuevos</span>
           </div>
         </div>
@@ -118,10 +137,10 @@ export default function Dashboard({
                 MIEMBROS ACTIVOS
               </span>
               <span className="bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">
-                ↗ +3
+                ↗ +{stats.newMembersThisMonth}
               </span>
             </div>
-            <div className="text-3xl font-black text-gray-900 mt-1.5">9</div>
+            <div className="text-3xl font-black text-gray-900 mt-1.5">{stats.activeMembers}</div>
           </div>
           <span className="text-[11px] text-gray-400">altas en el mes</span>
         </div>
@@ -134,12 +153,12 @@ export default function Dashboard({
                 EN RIESGO
               </span>
               <span className="bg-orange-50 text-orange-700 text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">
-                ↘ 1 altos
+                ↘ {stats.highRiskMembers} altos
               </span>
             </div>
-            <div className="text-3xl font-black text-gray-900 mt-1.5">3</div>
+            <div className="text-3xl font-black text-gray-900 mt-1.5">{stats.highRiskMembers + stats.mediumRiskMembers}</div>
           </div>
-          <span className="text-[11px] text-gray-400">2 medios</span>
+          <span className="text-[11px] text-gray-400">{stats.mediumRiskMembers} medios</span>
         </div>
 
         {/* Metric 3 */}
@@ -150,10 +169,10 @@ export default function Dashboard({
                 COBRADO ESTE MES
               </span>
               <span className="bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">
-                ↗ $252 pendientes
+                ↗ ${stats.pendingPayments} pendientes
               </span>
             </div>
-            <div className="text-3xl font-black text-gray-900 mt-1.5">$236</div>
+            <div className="text-3xl font-black text-gray-900 mt-1.5">${stats.totalRevenueThisMonth}</div>
           </div>
           <span className="text-[11px] text-gray-400">del mes en curso</span>
         </div>
@@ -169,7 +188,7 @@ export default function Dashboard({
                 ↗ Altas
               </span>
             </div>
-            <div className="text-3xl font-black text-gray-900 mt-1.5">3</div>
+            <div className="text-3xl font-black text-gray-900 mt-1.5">{stats.newMembersThisMonth}</div>
           </div>
           <span className="text-[11px] text-gray-400">desde el día 1</span>
         </div>
@@ -209,16 +228,18 @@ export default function Dashboard({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-gray-900">Distribución de riesgo</h3>
-                <p className="text-[11px] text-gray-400 mt-0.5">Score calculado cada 6 horas sobre 152 miembros activos</p>
+                <p className="text-[11px] text-gray-400 mt-0.5">Score calculado sobre {stats.totalMembers} miembros activos</p>
               </div>
-              <span className="bg-orange-50 text-orange-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                ⚠️ 14 críticos
-              </span>
+              {stats.highRiskMembers > 0 && (
+                <span className="bg-orange-50 text-orange-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                  ⚠️ {stats.highRiskMembers} críticos
+                </span>
+              )}
             </div>
 
             {/* Circular graph */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-8 my-6">
-              {/* SVG Circle chart resembling screenshot */}
+              {/* SVG Circle chart */}
               <div className="relative w-36 h-36 flex items-center justify-center flex-shrink-0">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                   {/* Background track */}
@@ -230,7 +251,7 @@ export default function Dashboard({
                     stroke="#F1EFEA"
                     strokeWidth="12"
                   />
-                  {/* Green Bajo Riesgo: 72% */}
+                  {/* Green Bajo Riesgo */}
                   <circle
                     cx="50"
                     cy="50"
@@ -239,10 +260,10 @@ export default function Dashboard({
                     stroke="#10B981"
                     strokeWidth="12"
                     strokeDasharray="251.2"
-                    strokeDashoffset="70.3" // 251.2 * 0.28 (starts from green offset)
+                    strokeDashoffset={251.2 * (1 - lowRiskPercentage / 100)}
                     className="transition-all duration-1000"
                   />
-                  {/* Orange Riesgo Medio: 18% */}
+                  {/* Orange Riesgo Medio */}
                   <circle
                     cx="50"
                     cy="50"
@@ -251,10 +272,10 @@ export default function Dashboard({
                     stroke="#F59E0B"
                     strokeWidth="12"
                     strokeDasharray="251.2"
-                    strokeDashoffset="206.0" // 251.2 * 0.82
+                    strokeDashoffset={251.2 * (1 - mediumRiskPercentage / 100)}
                     className="transition-all duration-1000"
                   />
-                  {/* Red Alto Riesgo: 10% */}
+                  {/* Red Alto Riesgo */}
                   <circle
                     cx="50"
                     cy="50"
@@ -263,20 +284,20 @@ export default function Dashboard({
                     stroke="#EF4444"
                     strokeWidth="12"
                     strokeDasharray="251.2"
-                    strokeDashoffset="226.1" // 251.2 * 0.90
+                    strokeDashoffset={251.2 * (1 - highRiskPercentage / 100)}
                     className="transition-all duration-1000"
                   />
                 </svg>
                 {/* Center elements */}
                 <div className="absolute flex flex-col items-center justify-center text-center">
-                  <span className="text-3xl font-black text-gray-900">152</span>
+                  <span className="text-3xl font-black text-gray-900">{stats.totalMembers}</span>
                   <span className="text-[9px] font-bold tracking-widest text-gray-400 uppercase -mt-0.5">MIEMBROS</span>
                 </div>
               </div>
 
               {/* Legends list */}
               <div className="flex flex-col gap-2.5 w-full">
-                {/* Item 1 */}
+                {/* Item 1 - Alto riesgo */}
                 <div>
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5">
@@ -284,16 +305,16 @@ export default function Dashboard({
                       <span className="text-gray-500 font-medium">Alto riesgo</span>
                     </div>
                     <div className="text-right">
-                      <span className="font-bold text-gray-900">14 </span>
-                      <span className="text-gray-400 text-[10px]">• 9%</span>
+                      <span className="font-bold text-gray-900">{stats.highRiskMembers} </span>
+                      <span className="text-gray-400 text-[10px]">• {highRiskPercentage}%</span>
                     </div>
                   </div>
                   <div className="w-full bg-gray-100 h-1 rounded-full mt-1.5 overflow-hidden">
-                    <div className="bg-red-500 h-full rounded-full" style={{ width: '9%' }}></div>
+                    <div className="bg-red-500 h-full rounded-full transition-all duration-500" style={{ width: `${highRiskPercentage}%` }}></div>
                   </div>
                 </div>
 
-                {/* Item 2 */}
+                {/* Item 2 - Riesgo medio */}
                 <div>
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5">
@@ -301,16 +322,16 @@ export default function Dashboard({
                       <span className="text-gray-500 font-medium">Riesgo medio</span>
                     </div>
                     <div className="text-right">
-                      <span className="font-bold text-gray-900">28 </span>
-                      <span className="text-gray-400 text-[10px]">• 18%</span>
+                      <span className="font-bold text-gray-900">{stats.mediumRiskMembers} </span>
+                      <span className="text-gray-400 text-[10px]">• {mediumRiskPercentage}%</span>
                     </div>
                   </div>
                   <div className="w-full bg-gray-100 h-1 rounded-full mt-1.5 overflow-hidden">
-                    <div className="bg-orange-400 h-full rounded-full" style={{ width: '18%' }}></div>
+                    <div className="bg-orange-400 h-full rounded-full transition-all duration-500" style={{ width: `${mediumRiskPercentage}%` }}></div>
                   </div>
                 </div>
 
-                {/* Item 3 */}
+                {/* Item 3 - Bajo riesgo */}
                 <div>
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5">
@@ -318,12 +339,12 @@ export default function Dashboard({
                       <span className="text-gray-500 font-medium">Bajo riesgo</span>
                     </div>
                     <div className="text-right">
-                      <span className="font-bold text-gray-900">110 </span>
-                      <span className="text-gray-400 text-[10px]">• 72%</span>
+                      <span className="font-bold text-gray-900">{stats.lowRiskMembers} </span>
+                      <span className="text-gray-400 text-[10px]">• {lowRiskPercentage}%</span>
                     </div>
                   </div>
                   <div className="w-full bg-gray-100 h-1 rounded-full mt-1.5 overflow-hidden">
-                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: '72%' }}></div>
+                    <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${lowRiskPercentage}%` }}></div>
                   </div>
                 </div>
               </div>

@@ -42,8 +42,6 @@ export default function Members({
   const [formEmail, setFormEmail] = useState("");
   const [formPlan, setFormPlan] = useState("Mensual");
   const [formStatus, setFormStatus] = useState<MemberStatus>("ACTIVO");
-  const [formRisk, setFormRisk] = useState<RiskLevel>("BAJO");
-  const [formRiskScore, setFormRiskScore] = useState(15);
   const [formCoach, setFormCoach] = useState("—");
 
   // Sync tab filter if redirected from dashboard
@@ -129,8 +127,8 @@ export default function Members({
       registrationDate: "alta jun 2026",
       plan: formPlan,
       status: formStatus,
-      risk: formRisk,
-      riskScore: Number(formRiskScore),
+      risk: 'BAJO', // Will be calculated automatically by database trigger
+      riskScore: 100, // Will be calculated automatically by database trigger
       lastVisit: "hace 1 días",
       coach: formCoach
     };
@@ -143,8 +141,6 @@ export default function Members({
     setFormEmail("");
     setFormPlan("Mensual");
     setFormStatus("ACTIVO");
-    setFormRisk("BAJO");
-    setFormRiskScore(15);
     setFormCoach("—");
 
     // Show toast
@@ -462,52 +458,22 @@ export default function Members({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Estado de pago</label>
-                  <select
-                    value={formStatus}
-                    onChange={(e) => setFormStatus(e.target.value as MemberStatus)}
-                    className="w-full bg-[#FAF7F2] border border-[#EFE9E4] rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                  >
-                    <option value="ACTIVO">Al día (ACTIVO)</option>
-                    <option value="NUEVO">Nuevo</option>
-                    <option value="ATRASADO">Atrasado</option>
-                    <option value="PAUSADO">Pausado</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nivel de Riesgo</label>
-                  <select
-                    value={formRisk}
-                    onChange={(e) => {
-                      const val = e.target.value as RiskLevel;
-                      setFormRisk(val);
-                      setFormRiskScore(val === 'ALTO' ? 85 : val === 'MEDIO' ? 55 : 12);
-                    }}
-                    className="w-full bg-[#FAF7F2] border border-[#EFE9E4] rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                  >
-                    <option value="BAJO">Bajo riesgo</option>
-                    <option value="MEDIO">Riesgo medio</option>
-                    <option value="ALTO">Alto riesgo</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Estado de pago</label>
+                <select
+                  value={formStatus}
+                  onChange={(e) => setFormStatus(e.target.value as MemberStatus)}
+                  className="w-full bg-[#FAF7F2] border border-[#EFE9E4] rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                >
+                  <option value="ACTIVO">Al día (ACTIVO)</option>
+                  <option value="NUEVO">Nuevo</option>
+                  <option value="ATRASADO">Atrasado</option>
+                  <option value="PAUSADO">Pausado</option>
+                </select>
               </div>
 
-              <div>
-                <label className="block font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Score de Riesgo (0 - 100)</label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="range"
-                    min="1"
-                    max="100"
-                    value={formRiskScore}
-                    onChange={(e) => setFormRiskScore(Number(e.target.value))}
-                    className="flex-grow accent-amber-500 cursor-pointer h-2 bg-gray-200 rounded-lg appearance-none"
-                  />
-                  <span className="font-extrabold text-sm text-gray-900 w-8 text-right">{formRiskScore}</span>
-                </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-800">
+                <strong>Nota:</strong> El score de riesgo se calculará automáticamente basado en asistencia, pagos, frecuencia y otros factores.
               </div>
 
               <div className="flex gap-2.5 justify-end mt-4">

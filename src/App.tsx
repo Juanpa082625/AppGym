@@ -16,6 +16,7 @@ import { LoadingSpinner } from './components/LoadingSpinner'
 
 import type { GymSettings, Member, Routine, Coach, Payment } from './types-titanops'
 import type { Report } from './services/reports'
+import type { DashboardStats } from './services/statistics'
 
 import { fetchMembers, createMember, updateMember, deleteMember } from './services/members'
 import { fetchRoutines, createRoutine, updateRoutine, deleteRoutine } from './services/routines'
@@ -23,9 +24,10 @@ import { fetchCoaches, createCoach, updateCoach, deleteCoach } from './services/
 import { fetchPayments, createPayment, updatePayment, deletePayment } from './services/payments'
 import { fetchReports, createReport, deleteReport } from './services/reports'
 import { fetchGymSettings, updateGymSettings } from './services/gymSettings'
+import { calculateDashboardStats } from './services/statistics'
 
 export default function App() {
-  const { user, business, profile, loading: authLoading } = useAuth()
+  const { user, business, profile, loading: authLoading, signOut } = useAuth()
   const navigate = useNavigate()
 
   const [activeTab, setActiveTab] = useState<string>('dashboard')
@@ -35,6 +37,7 @@ export default function App() {
   const [coaches, setCoaches] = useState<Coach[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
   const [reports, setReports] = useState<Report[]>([])
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null)
   
   const [searchVal, setSearchVal] = useState<string>("")
   const [memberFilter, setMemberFilter] = useState<string>("Todos")
@@ -47,13 +50,14 @@ export default function App() {
     const loadAllData = async () => {
       try {
         setDataLoading(true)
-        const [membersData, routinesData, coachesData, paymentsData, reportsData, settingsData] = await Promise.all([
+        const [membersData, routinesData, coachesData, paymentsData, reportsData, settingsData, statsData] = await Promise.all([
           fetchMembers(business.id),
           fetchRoutines(business.id),
           fetchCoaches(business.id),
           fetchPayments(business.id),
           fetchReports(business.id),
-          fetchGymSettings(business.id)
+          fetchGymSettings(business.id),
+          calculateDashboardStats(business.id)
         ])
 
         setMembers(membersData)
@@ -62,6 +66,7 @@ export default function App() {
         setPayments(paymentsData)
         setReports(reportsData)
         setGymSettings(settingsData)
+        setDashboardStats(statsData)
       } catch (error) {
         console.error('Error loading data:', error)
       } finally {
@@ -244,6 +249,43 @@ export default function App() {
     setActiveTab('reportes')
   }
 
+  // Handle logout with proper session cleanup
+  const handleLogout = async () => {
+    try {
+      await signOut()
+      // Clear all local state
+      setMembers([])
+      setRoutines([])
+      setCoaches([])
+      setPayments([])
+      setReports([])
+      setGymSettings(null)
+      setActiveTab('dashboard')
+      setSearchVal('')
+      setMemberFilter('Todos')
+      
+      // Navigate to login and replace history to prevent back button
+      navigate('/login', { replace: true })
+    } catch (error) {
+      console.error('Error during logout:', error)
+      // Force navigation even if signOut fails
+      navigate('/login', { replace: true })
+    }
+  }
+
+  // Prevent back button navigation after logout
+  useEffect(() => {
+    if (!user && !authLoading) {
+      // Add history entry to prevent back button
+      window.history.pushState(null, '', window.location.href)
+      const handlePopState = () => {
+        window.history.pushState(null, '', window.location.href)
+      }
+      window.addEventListener('popstate', handlePopState)
+      return () => window.removeEventListener('popstate', handlePopState)
+    }
+  }, [user, authLoading])
+
   // Show loading spinner while auth is loading
   if (authLoading) {
     return <LoadingSpinner />
@@ -255,7 +297,7 @@ export default function App() {
   }
 
   // Show loading spinner while data is loading
-  if (dataLoading || !gymSettings) {
+  if (dataLoading || !gymSettings || !dashboardStats) {
     return <LoadingSpinner />
   }
 
@@ -269,7 +311,8 @@ export default function App() {
         return (
           <Dashboard 
             gymSettings={gymSettings} 
-            members={members} 
+            members={members}
+            stats={dashboardStats}
             setActiveTab={setActiveTab}
             setMemberFilter={setMemberFilter}
             onGenerateReport={handleGenerateReportFromDashboard}
@@ -353,7 +396,7 @@ export default function App() {
         setActiveTab={setActiveTab} 
         gymSettings={gymSettings}
         riskCount={riskCount}
-        onLogout={() => navigate('/login')}
+        onLogout={handleLogout}
       />
 
       <div className="flex-1 flex flex-col min-w-0">
