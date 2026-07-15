@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Flame, 
   Check, 
@@ -30,6 +31,7 @@ interface LandingPageProps {
 }
 
 export default function LandingPage({ onLogin, gymSettings }: LandingPageProps) {
+  const { signIn, signUp } = useAuth();
   // 'landing' | 'login' | 'register'
   const [view, setView] = useState<'landing' | 'login' | 'register'>('landing');
   
@@ -69,14 +71,58 @@ export default function LandingPage({ onLogin, gymSettings }: LandingPageProps) 
     }, 4000);
   };
 
-  const handleFormLogin = (e: React.FormEvent) => {
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+
+  const handleFormLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin();
+    setAuthError(null);
+    setAuthLoading(true);
+    
+    try {
+      await signIn({ email, password });
+      onLogin();
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setAuthError(error.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
-  const handleFormRegister = (e: React.FormEvent) => {
+  const handleFormRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(); // Log in instantly on successful trial registration
+    setAuthError(null);
+    
+    if (regPass !== regPassConfirm) {
+      setAuthError('Las contraseñas no coinciden');
+      return;
+    }
+    
+    if (regPass.length < 6) {
+      setAuthError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    
+    setAuthLoading(true);
+    
+    try {
+      await signUp({
+        email: regEmail,
+        password: regPass,
+        fullName: regName,
+        businessName: regName + "'s Gym"
+      });
+      
+      // Auto-login after successful registration
+      await signIn({ email: regEmail, password: regPass });
+      onLogin();
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      setAuthError(error.message || 'Error al crear la cuenta. Intenta de nuevo.');
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   const faqs = [
@@ -788,6 +834,12 @@ export default function LandingPage({ onLogin, gymSettings }: LandingPageProps) 
             </div>
 
             <form onSubmit={handleFormLogin} className="flex flex-col gap-4 text-xs">
+              {authError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-medium">
+                  {authError}
+                </div>
+              )}
+              
               <div>
                 <label className="block font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Email</label>
                 <div className="relative">
@@ -831,9 +883,10 @@ export default function LandingPage({ onLogin, gymSettings }: LandingPageProps) 
 
               <button
                 type="submit"
-                className="bg-[#1E1E1E] hover:bg-gray-800 text-white font-extrabold py-3.5 rounded-xl uppercase tracking-wider mt-3 shadow-md cursor-pointer"
+                disabled={authLoading}
+                className="bg-[#1E1E1E] hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-extrabold py-3.5 rounded-xl uppercase tracking-wider mt-3 shadow-md cursor-pointer"
               >
-                Iniciar sesión
+                {authLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
               </button>
             </form>
 
@@ -871,6 +924,12 @@ export default function LandingPage({ onLogin, gymSettings }: LandingPageProps) 
             </div>
 
             <form onSubmit={handleFormRegister} className="flex flex-col gap-4 text-xs">
+              {authError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-medium">
+                  {authError}
+                </div>
+              )}
+              
               <div>
                 <label className="block font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nombre</label>
                 <div className="relative">
@@ -942,9 +1001,10 @@ export default function LandingPage({ onLogin, gymSettings }: LandingPageProps) 
 
               <button
                 type="submit"
-                className="bg-[#1E1E1E] hover:bg-gray-800 text-white font-extrabold py-3.5 rounded-xl uppercase tracking-wider mt-3 shadow-md cursor-pointer"
+                disabled={authLoading}
+                className="bg-[#1E1E1E] hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-extrabold py-3.5 rounded-xl uppercase tracking-wider mt-3 shadow-md cursor-pointer"
               >
-                Crear cuenta gratis
+                {authLoading ? 'Creando cuenta...' : 'Crear cuenta gratis'}
               </button>
             </form>
 
