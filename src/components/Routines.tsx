@@ -12,6 +12,7 @@ import {
   FileText
 } from 'lucide-react';
 import { Routine, GymSettings, RoutineLevel } from '../types';
+import ImageUpload from './ImageUpload';
 
 interface RoutinesProps {
   gymSettings: GymSettings;
@@ -441,16 +442,10 @@ export default function Routines({
                 </div>
               </div>
 
-              <div>
-                <label className="block font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Imagen de Cover (URL de Unsplash)</label>
-                <input
-                  type="text"
-                  placeholder="https://images.unsplash.com/..."
-                  value={formImage}
-                  onChange={(e) => setFormImage(e.target.value)}
-                  className="w-full bg-[#FAF7F2] border border-[#EFE9E4] rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                />
-              </div>
+              <ImageUpload
+                currentImage={formImage}
+                onImageChange={setFormImage}
+              />
 
               <div className="flex gap-2.5 justify-end mt-4">
                 <button
