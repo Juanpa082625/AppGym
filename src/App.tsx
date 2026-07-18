@@ -312,6 +312,7 @@ export default function App() {
           <Dashboard 
             gymSettings={gymSettings} 
             members={members}
+            payments={payments}
             stats={dashboardStats}
             setActiveTab={setActiveTab}
             setMemberFilter={setMemberFilter}

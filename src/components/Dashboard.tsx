@@ -13,12 +13,15 @@ import {
   DollarSign,
   UserPlus
 } from 'lucide-react';
-import { GymSettings, Member } from '../types';
+import { GymSettings, Member, Payment } from '../types';
 import { DashboardStats } from '../services/statistics';
+import { generateAlerts } from '../services/alerts';
+import AlertsPanel from './AlertsPanel';
 
 interface DashboardProps {
   gymSettings: GymSettings;
   members: Member[];
+  payments: Payment[];
   stats: DashboardStats;
   setActiveTab: (tab: string) => void;
   setMemberFilter: (filter: string) => void;
@@ -28,6 +31,7 @@ interface DashboardProps {
 export default function Dashboard({ 
   gymSettings, 
   members,
+  payments,
   stats,
   setActiveTab, 
   setMemberFilter,
@@ -56,6 +60,9 @@ export default function Dashboard({
   const highRiskPercentage = totalRiskMembers > 0 ? Math.round((stats.highRiskMembers / totalRiskMembers) * 100) : 0;
   const mediumRiskPercentage = totalRiskMembers > 0 ? Math.round((stats.mediumRiskMembers / totalRiskMembers) * 100) : 0;
   const lowRiskPercentage = totalRiskMembers > 0 ? Math.round((stats.lowRiskMembers / totalRiskMembers) * 100) : 0;
+
+  // Generate alerts
+  const alerts = generateAlerts(members, payments);
 
   // Check if dashboard is empty
   const isEmpty = stats.totalMembers === 0;
@@ -435,6 +442,20 @@ export default function Dashboard({
           </div>
         </div>
       </div>
+
+      {/* Alerts Panel */}
+      {alerts.length > 0 && (
+        <AlertsPanel 
+          alerts={alerts} 
+          onAlertClick={(alert) => {
+            if (alert.category === 'payment_pending') {
+              setActiveTab('pagos');
+            } else if (alert.memberId) {
+              setActiveTab('miembros');
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
