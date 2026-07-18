@@ -45,6 +45,8 @@ export interface GymSettings {
 
 export type RiskLevel = 'ALTO' | 'MEDIO' | 'BAJO'
 export type MemberStatus = 'ACTIVO' | 'EN_RIESGO' | 'ATRASADO' | 'PAUSADO' | 'NUEVO' | 'CANCELADO'
+export type MembershipStatus = 'ACTIVA' | 'PROXIMA_A_VENCER' | 'VENCE_HOY' | 'VENCIDA' | 'SIN_PLAN'
+export type PaymentMethod = 'Tarjeta' | 'Efectivo' | 'Transferencia' | 'Otro'
 export type PaymentStatus = 'PAGADO' | 'PENDIENTE' | 'ATRASADO'
 export type RoutineLevel = 'PRINCIPIANTE' | 'INTERMEDIO' | 'AVANZADO'
 
@@ -60,6 +62,12 @@ export interface Member {
   riskScore: number
   lastVisit: string
   coach: string
+  planStartDate?: string
+  planEndDate?: string
+  planValue?: number
+  planPaymentMethod?: PaymentMethod
+  membershipStatus?: MembershipStatus
+  daysUntilExpiry?: number
 }
 
 export interface Routine {

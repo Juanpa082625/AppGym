@@ -1,5 +1,34 @@
 import { supabase } from '../lib/supabase'
-import type { Member } from '../types-titanops'
+import type { Member, MembershipStatus, PaymentMethod } from '../types-titanops'
+
+// Calculate membership status based on plan end date
+export function calculateMembershipStatus(planEndDate?: string): MembershipStatus {
+  if (!planEndDate) return 'SIN_PLAN'
+  
+  const endDate = new Date(planEndDate)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  endDate.setHours(0, 0, 0, 0)
+  
+  const daysUntilExpiry = Math.floor((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  
+  if (daysUntilExpiry < 0) return 'VENCIDA'
+  if (daysUntilExpiry === 0) return 'VENCE_HOY'
+  if (daysUntilExpiry <= 7) return 'PROXIMA_A_VENCER'
+  return 'ACTIVA'
+}
+
+// Calculate days until expiry
+export function calculateDaysUntilExpiry(planEndDate?: string): number | null {
+  if (!planEndDate) return null
+  
+  const endDate = new Date(planEndDate)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  endDate.setHours(0, 0, 0, 0)
+  
+  return Math.floor((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+}
 
 export async function fetchMembers(businessId: string): Promise<Member[]> {
   if (!supabase) throw new Error('Supabase not configured')
@@ -27,7 +56,13 @@ export async function fetchMembers(businessId: string): Promise<Member[]> {
     risk: m.risk_level as 'ALTO' | 'MEDIO' | 'BAJO',
     riskScore: m.risk_score,
     lastVisit: m.last_visit ? `hace ${Math.floor((Date.now() - new Date(m.last_visit).getTime()) / (1000 * 60 * 60 * 24))} días` : 'hace 1 días',
-    coach: m.coach_name || '—'
+    coach: m.coach_name || '—',
+    planStartDate: m.plan_start_date,
+    planEndDate: m.plan_end_date,
+    planValue: m.plan_value ? Number(m.plan_value) : undefined,
+    planPaymentMethod: m.plan_payment_method as PaymentMethod | undefined,
+    membershipStatus: calculateMembershipStatus(m.plan_end_date),
+    daysUntilExpiry: calculateDaysUntilExpiry(m.plan_end_date) ?? undefined
   }))
 }
 
@@ -48,7 +83,11 @@ export async function createMember(
       status: member.status,
       risk_level: member.risk,
       risk_score: member.riskScore,
-      coach_name: member.coach
+      coach_name: member.coach,
+      plan_start_date: member.planStartDate,
+      plan_end_date: member.planEndDate,
+      plan_value: member.planValue,
+      plan_payment_method: member.planPaymentMethod
     })
     .select()
     .single()
@@ -70,7 +109,13 @@ export async function createMember(
     risk: data.risk_level as 'ALTO' | 'MEDIO' | 'BAJO',
     riskScore: data.risk_score,
     lastVisit: data.last_visit ? `hace ${Math.floor((Date.now() - new Date(data.last_visit).getTime()) / (1000 * 60 * 60 * 24))} días` : 'hace 1 días',
-    coach: data.coach_name || '—'
+    coach: data.coach_name || '—',
+    planStartDate: data.plan_start_date,
+    planEndDate: data.plan_end_date,
+    planValue: data.plan_value ? Number(data.plan_value) : undefined,
+    planPaymentMethod: data.plan_payment_method as PaymentMethod | undefined,
+    membershipStatus: calculateMembershipStatus(data.plan_end_date),
+    daysUntilExpiry: calculateDaysUntilExpiry(data.plan_end_date) ?? undefined
   }
 }
 
@@ -89,6 +134,10 @@ export async function updateMember(
   if (updates.risk !== undefined) updateData.risk_level = updates.risk
   if (updates.riskScore !== undefined) updateData.risk_score = updates.riskScore
   if (updates.coach !== undefined) updateData.coach_name = updates.coach
+  if (updates.planStartDate !== undefined) updateData.plan_start_date = updates.planStartDate
+  if (updates.planEndDate !== undefined) updateData.plan_end_date = updates.planEndDate
+  if (updates.planValue !== undefined) updateData.plan_value = updates.planValue
+  if (updates.planPaymentMethod !== undefined) updateData.plan_payment_method = updates.planPaymentMethod
 
   const { data, error } = await supabase
     .from('members')
@@ -114,7 +163,13 @@ export async function updateMember(
     risk: data.risk_level as 'ALTO' | 'MEDIO' | 'BAJO',
     riskScore: data.risk_score,
     lastVisit: data.last_visit ? `hace ${Math.floor((Date.now() - new Date(data.last_visit).getTime()) / (1000 * 60 * 60 * 24))} días` : 'hace 1 días',
-    coach: data.coach_name || '—'
+    coach: data.coach_name || '—',
+    planStartDate: data.plan_start_date,
+    planEndDate: data.plan_end_date,
+    planValue: data.plan_value ? Number(data.plan_value) : undefined,
+    planPaymentMethod: data.plan_payment_method as PaymentMethod | undefined,
+    membershipStatus: calculateMembershipStatus(data.plan_end_date),
+    daysUntilExpiry: calculateDaysUntilExpiry(data.plan_end_date) ?? undefined
   }
 }
 
