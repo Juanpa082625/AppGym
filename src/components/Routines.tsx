@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Routine, GymSettings, RoutineLevel } from '../types';
 import ImageUpload from './ImageUpload';
+import EmptyState from './EmptyState';
 
 interface RoutinesProps {
   gymSettings: GymSettings;
@@ -271,11 +272,19 @@ export default function Routines({
 
         {/* Routine Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRoutines.length === 0 ? (
-            <div className="col-span-full py-12 text-center text-gray-400 text-xs">
-              No se encontraron rutinas para el criterio de búsqueda o nivel seleccionado.
-            </div>
-          ) : (
+        {filteredRoutines.length === 0 ? (
+          <EmptyState
+            icon="dumbbell"
+            title="No hay rutinas"
+            description={
+              routines.length === 0
+                ? "Crea tu primera rutina para empezar a asignar programas de entrenamiento a tus miembros."
+                : "No se encontraron rutinas para el criterio de búsqueda o nivel seleccionado."
+            }
+            actionLabel={routines.length === 0 ? "Crear primera rutina" : undefined}
+            onAction={routines.length === 0 ? () => setShowAddModal(true) : undefined}
+          />
+        ) : (
             filteredRoutines.map((routine) => {
               // Level colors
               const isAvanzado = routine.level === 'AVANZADO';

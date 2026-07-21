@@ -21,8 +21,6 @@ export async function signUp({ email, password, fullName, businessName }: SignUp
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 
-  console.log('🔐 Attempting signup for:', email)
-  
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -36,11 +34,9 @@ export async function signUp({ email, password, fullName, businessName }: SignUp
   })
 
   if (error) {
-    console.error('❌ Signup error:', error)
+    console.error('Signup error:', error)
     throw error
   }
-  
-  console.log('✅ Signup successful:', data)
   
   if (!data.user) {
     throw new Error('No se pudo crear el usuario. Por favor intenta de nuevo.')
@@ -52,19 +48,16 @@ export async function signUp({ email, password, fullName, businessName }: SignUp
 export async function signIn({ email, password }: SignInParams) {
   if (!supabase) throw new Error('Supabase not configured')
   
-  console.log('🔑 Attempting signin for:', email)
-  
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
 
   if (error) {
-    console.error('❌ Signin error:', error)
+    console.error('Signin error:', error)
     throw error
   }
   
-  console.log('✅ Signin successful:', data)
   return data
 }
 
@@ -90,8 +83,6 @@ export async function getCurrentSession() {
 export async function fetchProfile(userId: string): Promise<Profile> {
   if (!supabase) throw new Error('Supabase not configured')
   
-  console.log('👤 Fetching profile for user:', userId)
-  
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
@@ -99,11 +90,10 @@ export async function fetchProfile(userId: string): Promise<Profile> {
     .single()
 
   if (error) {
-    console.error('❌ Fetch profile error:', error)
+    console.error('Fetch profile error:', error)
     throw error
   }
   
-  console.log('✅ Profile fetched:', data)
   return data as Profile
 }
 

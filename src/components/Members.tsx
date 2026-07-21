@@ -10,14 +10,17 @@ import {
   X,
   UserPlus,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  Trash2
 } from 'lucide-react';
 import { Member, GymSettings, MemberStatus, RiskLevel } from '../types';
+import EmptyState from './EmptyState';
 
 interface MembersProps {
   gymSettings: GymSettings;
   members: Member[];
   onAddMember: (newMember: Member) => void;
+  onDeleteMember?: (memberId: string) => void;
   filterFromDashboard: string;
   setFilterFromDashboard: (filter: string) => void;
   searchVal: string;
@@ -27,6 +30,7 @@ export default function Members({
   gymSettings, 
   members, 
   onAddMember,
+  onDeleteMember,
   filterFromDashboard,
   setFilterFromDashboard,
   searchVal
@@ -36,6 +40,7 @@ export default function Members({
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [showToast, setShowToast] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   // Form states for new member
   const [formName, setFormName] = useState("");
@@ -298,8 +303,18 @@ export default function Members({
             <tbody className="divide-y divide-[#FAF7F2]">
               {filteredMembers.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-gray-400">
-                    No se encontraron miembros para el criterio de búsqueda o filtro seleccionado.
+                  <td colSpan={8}>
+                    <EmptyState
+                      icon="users"
+                      title="No hay miembros"
+                      description={
+                        members.length === 0
+                          ? "Comienza agregando tu primer miembro al gimnasio para empezar a gestionar membresías, pagos y alertas."
+                          : "No se encontraron miembros para el criterio de búsqueda o filtro seleccionado."
+                      }
+                      actionLabel={members.length === 0 ? "Agregar primer miembro" : undefined}
+                      onAction={members.length === 0 ? () => setShowAddModal(true) : undefined}
+                    />
                   </td>
                 </tr>
               ) : (
@@ -368,12 +383,15 @@ export default function Members({
                           >
                             <Mail className="w-3.5 h-3.5" />
                           </a>
-                          <button
-                            className="p-1.5 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-900"
-                            title="Opciones"
-                          >
-                            <MoreVertical className="w-3.5 h-3.5" />
-                          </button>
+                          {onDeleteMember && (
+                            <button
+                              onClick={() => setDeleteConfirmId(member.id)}
+                              className="p-1.5 hover:bg-red-50 rounded text-gray-400 hover:text-red-600"
+                              title="Eliminar"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -492,6 +510,54 @@ export default function Members({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 bg-[#000000]/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full border border-[#EFE9E4] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+            <div className="bg-red-50 px-6 py-4 border-b border-red-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+                <h3 className="font-black text-gray-900 text-sm uppercase tracking-wide">Confirmar eliminación</h3>
+              </div>
+              <button
+                onClick={() => setDeleteConfirmId(null)}
+                className="text-gray-400 hover:text-gray-700 p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <p className="text-sm text-gray-700 mb-6">
+                ¿Estás seguro de que deseas eliminar este miembro? Esta acción no se puede deshacer.
+              </p>
+
+              <div className="flex gap-2.5 justify-end">
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="bg-white border border-[#EFE9E4] hover:bg-gray-50 text-gray-700 px-4 py-2.5 rounded-xl font-bold transition-all cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => {
+                    if (onDeleteMember && deleteConfirmId) {
+                      onDeleteMember(deleteConfirmId);
+                      setDeleteConfirmId(null);
+                      setShowToast(true);
+                      setTimeout(() => setShowToast(false), 3000);
+                    }
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all cursor-pointer"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

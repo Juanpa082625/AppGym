@@ -11,6 +11,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { Payment, GymSettings, PaymentStatus } from '../types';
+import EmptyState from './EmptyState';
 
 interface PaymentsProps {
   gymSettings: GymSettings;
@@ -270,8 +271,18 @@ export default function Payments({
             <tbody className="divide-y divide-[#FAF7F2]">
               {filteredPayments.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-gray-400">
-                    No se encontraron transacciones para el criterio de búsqueda o filtro seleccionado.
+                  <td colSpan={6}>
+                    <EmptyState
+                      icon="creditcard"
+                      title="No hay pagos"
+                      description={
+                        payments.length === 0
+                          ? "Registra tu primer pago para empezar a gestionar los ingresos del gimnasio."
+                          : "No se encontraron transacciones para el criterio de búsqueda o filtro seleccionado."
+                      }
+                      actionLabel={payments.length === 0 ? "Registrar primer pago" : undefined}
+                      onAction={payments.length === 0 ? () => setShowAddModal(true) : undefined}
+                    />
                   </td>
                 </tr>
               ) : (

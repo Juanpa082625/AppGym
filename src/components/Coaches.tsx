@@ -10,6 +10,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import { Coach, GymSettings } from '../types';
+import EmptyState from './EmptyState';
 
 interface CoachesProps {
   gymSettings: GymSettings;
@@ -163,9 +164,17 @@ export default function Coaches({
         {/* Coaches Table/List resembling image */}
         <div className="flex flex-col divide-y divide-[#FAF7F2]">
           {filteredCoaches.length === 0 ? (
-            <div className="py-8 text-center text-gray-400 text-xs">
-              No se encontraron entrenadores para la búsqueda.
-            </div>
+            <EmptyState
+              icon="user"
+              title="No hay entrenadores"
+              description={
+                coaches.length === 0
+                  ? "Agrega tu primer entrenador para empezar a gestionar tu equipo y asignar miembros."
+                  : "No se encontraron entrenadores para la búsqueda."
+              }
+              actionLabel={coaches.length === 0 ? "Agregar primer entrenador" : undefined}
+              onAction={coaches.length === 0 ? () => setShowAddModal(true) : undefined}
+            />
           ) : (
             filteredCoaches.map((coach) => {
               const useInitials = !coach.photoUrl;

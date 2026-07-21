@@ -325,6 +325,7 @@ export default function App() {
             gymSettings={gymSettings} 
             members={members} 
             onAddMember={handleAddMember}
+            onDeleteMember={handleDeleteMember}
             filterFromDashboard={memberFilter}
             setFilterFromDashboard={setMemberFilter}
             searchVal={searchVal}
